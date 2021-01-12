@@ -21,46 +21,47 @@
 
 #include "maths/Math.hpp"
 
-class Block{
-friend class Generator;
+class Block
+{
+    friend class Generator;
+
 public:
     Block(){};
-    Block(std::vector<Plane>& _planes, int _id):
-        id(_id),
-        planes(_planes)
-        {
-            calculate_BoundingSphere();
-            calculate_InscribedSphere();
-        };
+    Block(std::vector<Plane> &_planes, int _id) : id(_id),
+                                                  planes(_planes)
+    {
+        calculate_BoundingSphere();
+        calculate_InscribedSphere();
+    };
     ~Block(){};
-        
+
     std::vector<Plane> planes;
-    
+
     std::vector<Polygon> polygons;
     std::vector<Edge> edges;
     std::vector<Vector3r> vertices;
-       
+
     void export_BlockVtk(std::string _fileName);
-    
-    double get_Volume(){return volume;};
+
+    double get_Volume() { return volume; };
     double get_Alpha();
     double get_Beta();
-    double get_InscribedSphereRadius(){return inscribedSphereRadius;};
-    double get_AspectRatio(){return boundingSphereRadius/inscribedSphereRadius;};
-    int get_Order(){return (int)polygons.size();};
-    
+    double get_InscribedSphereRadius() { return inscribedSphereRadius; };
+    double get_AspectRatio() { return boundingSphereRadius / inscribedSphereRadius; };
+    int get_Order() { return (int)polygons.size(); };
+
     double volume;
     double alpha;
     double beta;
     int id;
-        
+
 private:
-    void generate_Geometry(); 
+    void generate_Geometry();
     void calculate_Volume();
     void calculate_AlphaBeta();
     void calculate_BoundingSphere();
     void calculate_InscribedSphere();
-    
+
     Vector3r inscribedSphereCenter;
     Vector3r boundingSphereCenter;
     double boundingSphereRadius = 0;

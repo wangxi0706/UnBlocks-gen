@@ -32,5 +32,7 @@ generator = Generator()
 generator.generate_RockMass(dfn)
 generator.export_BlocksVtk("rockBlocks")
 
-for i in range(len(generator.blocks)):
-    generator.blocks[i].export_BlockVtk("Block"+str(i))
+generator.export_BlocksDDAOpt("rockBlocks")
+
+# for i in range(len(generator.blocks)):
+# generator.blocks[i].export_BlockVtk("Block"+str(i))

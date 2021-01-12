@@ -1,7 +1,7 @@
 # vtk DataFile Version 3.0
 Discrete fracture network
 ASCII
-
+ 
 DATASET POLYDATA
 POINTS 58 double
 10 10 10

@@ -26,47 +26,68 @@
 class DFN;
 class Fracture;
 
-class Generator{
+class Generator
+{
 public:
     Generator(){};
     ~Generator(){};
-    
-    struct ExcavationElement{
-        ExcavationElement(Triangle& _triangle);
+
+    struct ExcavationElement
+    {
+        ExcavationElement(Triangle &_triangle);
         ~ExcavationElement(){};
         std::vector<Plane> borderPlanes;
         double boundingSphereRadius;
-		Triangle triangle;
+        Triangle triangle;
         Vector3r unitVector;
         Vector3r center;
     };
-    
-    void set_MinInscribedSphereRadius(double _minInscribedSphereRadius){minInscribedSphereRadius = _minInscribedSphereRadius;};
-    void set_MaxAspectRatio(double _maxAspectRatio){maxAspectRatio = _maxAspectRatio;};
+
+    void set_MinInscribedSphereRadius(double _minInscribedSphereRadius) { minInscribedSphereRadius = _minInscribedSphereRadius; };
+    void set_MaxAspectRatio(double _maxAspectRatio) { maxAspectRatio = _maxAspectRatio; };
     void import_ExcavationElementsObj(std::string _fileName);
     void export_ExcavationElementsVtk(std::string _fileName);
     void export_BlocksVtk(std::string _fileName);
     
+    //Added, extract DDA blocks
     void export_BlocksDDA(std::string _fileName);
-    
-    boost::python::list get_Volumes(bool _considerBorderBlocks);
+    void export_BlocksDDAOpt(std::string _filename);
+
+    boost::python::list
+    get_Volumes(bool _considerBorderBlocks);
     boost::python::list get_AlphaValues(bool _considerBorderBlocks);
     boost::python::list get_BetaValues(bool _considerBorderBlocks);
-    
-    void generate_RockMass(DFN& _dfn);
+
+    void generate_RockMass(DFN &_dfn);
+
+    // add generate rock mass seperately
+    void generate_RockMass_Multi(DFN &_dfn);
+
+    // add fixed box region
+    std::vector<Box> fixRegion;
+
+    // add fixed box region
+    void add_Fixed_Region(PyList _MinPoint, PyList _MaxPoint);
+    inline bool inBox(Box &box, Vector3r &p)
+    {
+        return box.minCor[0] < p[0] && box.minCor[1] < p[1] && box.minCor[2] < p[2] &&
+               box.maxCor[0] > p[0] && box.maxCor[1] > p[1] && box.maxCor[2] > p[2];
+    }
+
     void excavate_RockMass();
 
     std::vector<std::shared_ptr<Block>> blocks;
-    
+
 private:
-    double calculate_BoundingSphereRadius(const Block& _block);
-    double calculate_InscribedSphere(const Block& _block);
-    template<class X> bool check_BlockPlaneIntersection(const Block& _block, const X& _plane);
-    
+    double calculate_BoundingSphereRadius(const Block &_block);
+    double calculate_InscribedSphere(const Block &_block);
+    template <class X>
+    bool check_BlockPlaneIntersection(const Block &_block, const X &_plane);
+
     std::vector<ExcavationElement> excavationElements;
-    Vector3r regionMinCorner = {0,0,0};
-    Vector3r regionMaxCorner = {100,100,100};
-    
+    Vector3r regionMinCorner = {0, 0, 0};
+    Vector3r regionMaxCorner = {100, 100, 100};
+
     double minInscribedSphereRadius = 0;
     double maxAspectRatio = INFINITY;
 };
