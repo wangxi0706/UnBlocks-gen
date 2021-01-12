@@ -373,6 +373,112 @@ void Generator::export_BlocksVtk(std::string _fileName){
     out.close();
 };
 
+void export_BlocksDDA(std::string _fileName){
+    int nTotalBlocks = (int)blocks.size();
+    int nTotalFaces = 0;
+    int nTotalVerts = 0;
+    int nTotalPoints = 0;
+    for (auto& b: blocks){
+        nTotalVerts += (int)b->vertices.size();
+        nTotalFaces += (int)b->polygons.size();
+        for (auto& p: b->polygons){
+            nTotalPoints += (int)p.verticesId.size();
+        }
+    }
+    
+    std::ofstream out;
+    out.open(_fileName + ".dda");
+    out << std::setprecision(15);
+    out << "# vtk DataFile Version 3.0" << std::endl;
+    out << "Voronoi results" << std::endl;
+    out << "ASCII" << std::endl;
+    out << " " << std::endl;
+    out << "DATASET UNSTRUCTURED_GRID" << std::endl;
+    out << "POINTS " << std::to_string(nTotalVerts) << " float" << std::endl;
+    for (auto& b: blocks){
+        for (auto& v : b->vertices){ 
+            out << v[0] << " " << v[1] << " " << v[2] << std::endl;
+        }
+    }
+    
+    out << " " << std::endl;
+    out << "CELLS " << nTotalBlocks << " " << std::to_string(2*nTotalBlocks + nTotalFaces + nTotalPoints) << std::endl;
+    int auxId = 0;
+    for (auto& b: blocks){
+        int nFaces = (int)b->polygons.size();
+        int nPoints = 0;
+        for (auto& p: b->polygons) nPoints += (int)p.verticesId.size();
+        out << 1 + nFaces + nPoints  << " " << nFaces << " ";
+        for (auto& p: b->polygons){
+            out << (int)p.verticesId.size()  << " ";
+            for (auto& vId: p.verticesId){
+                out << vId + auxId << " ";
+            }
+        }
+        auxId += (int)b->vertices.size();
+        out << std::endl;
+    }
+    out << std::endl;
+    
+    out << " " << std::endl;
+    out << "CELL_TYPES " << nTotalBlocks << std::endl;;
+    for (auto& b: blocks){
+        out << 42 << std::endl;
+    }
+    
+    out << " " << std::endl;
+    out << "CELL_DATA " << nTotalBlocks << std::endl;
+    out << "SCALARS id float" << std::endl;
+    out << "LOOKUP_TABLE default" << std::endl;
+    for (auto& b: blocks){
+        out << b->id << std::endl;
+    }
+    
+    out << " " << std::endl;
+    out << "SCALARS volume float" << std::endl;
+    out << "LOOKUP_TABLE default" << std::endl;
+    for (auto& b: blocks){
+        out << b->get_Volume() << std::endl;
+    }
+    
+    out << " " << std::endl;
+    out << "SCALARS alpha float" << std::endl;
+    out << "LOOKUP_TABLE default" << std::endl;
+    for (auto& b: blocks){
+        out << b->get_Alpha() << std::endl;
+    }
+    
+    out << " " << std::endl;
+    out << "SCALARS beta float" << std::endl;
+    out << "LOOKUP_TABLE default" << std::endl;
+    for (auto& b: blocks){
+        out << b->get_Beta() << std::endl;
+    }
+    
+    out << " " << std::endl;
+    out << "SCALARS order float" << std::endl;
+    out << "LOOKUP_TABLE default" << std::endl;
+    for (auto& b: blocks){
+        out << b->get_Order() << std::endl;
+    }
+    
+    out << " " << std::endl;
+    out << "SCALARS aspectRatio float" << std::endl;
+    out << "LOOKUP_TABLE default" << std::endl;
+    for (auto& b: blocks){
+        out << b->get_AspectRatio() << std::endl;
+    }
+    
+    out << " " << std::endl;
+    out << "SCALARS inscribedSphereRadius float" << std::endl;
+    out << "LOOKUP_TABLE default" << std::endl;
+    for (auto& b: blocks){
+        out << b->get_InscribedSphereRadius() << std::endl;
+    }
+    
+    out.close();
+};
+
 void Generator::import_ExcavationElementsObj(std::string _fileName){
     std::ifstream in;
 	in.open(_fileName + ".obj");

@@ -47,6 +47,8 @@ public:
     void export_ExcavationElementsVtk(std::string _fileName);
     void export_BlocksVtk(std::string _fileName);
     
+    void export_BlocksDDA(std::string _fileName);
+    
     boost::python::list get_Volumes(bool _considerBorderBlocks);
     boost::python::list get_AlphaValues(bool _considerBorderBlocks);
     boost::python::list get_BetaValues(bool _considerBorderBlocks);
