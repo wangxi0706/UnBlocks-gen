@@ -48,7 +48,7 @@ public:
     void import_ExcavationElementsObj(std::string _fileName);
     void export_ExcavationElementsVtk(std::string _fileName);
     void export_BlocksVtk(std::string _fileName);
-    
+
     //Added, extract DDA blocks
     void export_BlocksDDA(std::string _fileName);
     void export_BlocksDDAOpt(std::string _filename);
@@ -68,10 +68,10 @@ public:
 
     // add fixed box region
     void add_Fixed_Region(PyList _MinPoint, PyList _MaxPoint);
-    inline bool inBox(Box &box, Vector3r &p)
+    inline bool inBox(Box &box, Vector3r &p, Vector3r &offset)
     {
-        return box.minCor[0] < p[0] && box.minCor[1] < p[1] && box.minCor[2] < p[2] &&
-               box.maxCor[0] > p[0] && box.maxCor[1] > p[1] && box.maxCor[2] > p[2];
+        return box.minCor[0] < p[0] + offset[0] && box.minCor[1] < p[1] + offset[1] && box.minCor[2] < p[2] + offset[2] &&
+               box.maxCor[0] > p[0] + offset[0] && box.maxCor[1] > p[1] + offset[1] && box.maxCor[2] > p[2] + offset[2];
     }
 
     void excavate_RockMass();

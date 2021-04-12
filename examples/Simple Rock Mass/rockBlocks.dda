@@ -296,6 +296,21 @@ SCALARS inscribedSphereRadius float
 8.96584046534724
 3.68570705080179
  
+SCALARS fixedFlag int
+0
+0
+0
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+ 
 SCALARS volume float
 35097.9776144539
 100394.279070541

@@ -209,7 +209,10 @@ void Generator::generate_RockMass(DFN &_dfn)
     }
 
     for (int i = 0; i != (int)blocks.size(); ++i)
+    {
         blocks[i]->generate_Geometry();
+        blocks[i]->offset = _dfn.offset;
+    }
 }
 
 void Generator::generate_RockMass_Multi(DFN &_dfn)
@@ -627,7 +630,8 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
 
     std::ofstream out;
     out.open(_fileName + ".dda");
-    out << std::setprecision(15);
+    out << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
+    // out << std::setprecision(15);
     out << "#_DDA_DataFile_Version_1.0" << std::endl;
 
     out << "POINTS_START_LENGTH " << std::to_string(nTotalBlocks) << std::endl;
@@ -645,7 +649,10 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
     {
         for (auto &v : b->vertices)
         {
-            out << v[0] << " " << v[1] << " " << v[2] << std::endl;
+            out
+                << v[0] + b->offset[0] << " "
+                << v[1] + b->offset[1] << " "
+                << v[2] + b->offset[2] << std::endl;
         }
     }
     out << " " << std::endl;
@@ -758,7 +765,7 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
         {
             for (auto &v : b->vertices)
             {
-                if (!inBox(box, v))
+                if (!inBox(box, v, b->offset))
                 {
                     flag = 0; //not in box, so free
                     goto to;

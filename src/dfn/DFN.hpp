@@ -49,6 +49,7 @@ public:
     void set_RegionMaxCorner(PyList _point);
 
     // added
+    void set_RegionMaxMinCorner(PyList _point1, PyList _point2);
     void set_FirstRecBlock(PyList _MinPoint, PyList _MaxPoint);
 
     void set_NumberOfBorderPoints(int _number) { nFracBorderPoints = _number; };
@@ -66,6 +67,7 @@ private:
     std::vector<Triangle> modelRegion;
     int randomSeed = 0;
     int nFracBorderPoints = 26;
+    Vector3r offset = {0, 0, 0};
     Vector3r regionMinCorner = {0, 0, 0};
     Vector3r regionMaxCorner = {100, 100, 100};
 

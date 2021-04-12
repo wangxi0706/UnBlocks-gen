@@ -48,6 +48,7 @@ void DFN_Wrapper()
 		.def("set_RegionMaxCorner", &DFN::set_RegionMaxCorner)
 
 		// added
+		.def("set_RegionMaxMinCorner", &DFN::set_RegionMaxMinCorner)
 		.def("set_FirstRecBlock", &DFN::set_FirstRecBlock)
 
 		.def("set_RandomSeed", &DFN::set_RandomSeed)
@@ -75,9 +76,48 @@ void DFN::set_RandomSeed(int _seed)
 	}
 };
 
-void DFN::set_RegionMaxCorner(PyList _point)
+void DFN::set_RegionMaxMinCorner(PyList _point1, PyList _point2)
 {
-	Vector3r point = pyListToVec3(_point);
+	Vector3r point1 = pyListToVec3(_point1);
+	regionMaxCorner = point1;
+	Vector3r point2 = pyListToVec3(_point2);
+	offset = point2;
+	regionMaxCorner[0] -= offset[0];
+	regionMaxCorner[1] -= offset[1];
+	regionMaxCorner[2] -= offset[2];
+	regionVolume = (regionMaxCorner[0] - regionMinCorner[0]) * (regionMaxCorner[1] - regionMinCorner[1]) * (regionMaxCorner[2] - regionMinCorner[2]);
+
+	Triangle triangle1({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]});
+	Triangle triangle2({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]});
+	Triangle triangle3({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]});
+	Triangle triangle4({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]});
+	Triangle triangle5({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]});
+	Triangle triangle6({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]});
+	Triangle triangle7({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]});
+	Triangle triangle8({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]});
+	Triangle triangle9({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]});
+	Triangle triangle10({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]});
+	Triangle triangle11({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]});
+	Triangle triangle12({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]});
+
+	modelRegion.clear();
+	modelRegion.push_back(triangle1);
+	modelRegion.push_back(triangle2);
+	modelRegion.push_back(triangle3);
+	modelRegion.push_back(triangle4);
+	modelRegion.push_back(triangle5);
+	modelRegion.push_back(triangle6);
+	modelRegion.push_back(triangle7);
+	modelRegion.push_back(triangle8);
+	modelRegion.push_back(triangle9);
+	modelRegion.push_back(triangle10);
+	modelRegion.push_back(triangle11);
+	modelRegion.push_back(triangle12);
+};
+
+void DFN::set_RegionMaxCorner(PyList _point1)
+{
+	Vector3r point = pyListToVec3(_point1);
 	regionMaxCorner = point;
 	regionVolume = (regionMaxCorner[0] - regionMinCorner[0]) * (regionMaxCorner[1] - regionMinCorner[1]) * (regionMaxCorner[2] - regionMinCorner[2]);
 

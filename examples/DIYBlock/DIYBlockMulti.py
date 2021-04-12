@@ -23,17 +23,32 @@ from unblocks import *
 dfn1 = DFN()
 dfn1.set_FirstRecBlock([-5, -5, 0], [5, 5, 2.])
 dfn1.add_FractureSet()
+
 dfn2 = DFN()
-dfn2.set_FirstRecBlock([-2, -2, 3], [2, 2, 5])
+dfn2.set_FirstRecBlock([-5, 0, 2.], [5, 5, 4])
 dfn2.add_FractureSet()
+# dfn2.fractureSets[0].add_CircularFracture([0,0,3],0,90,0.5)
+
+dfn3 = DFN()
+dfn3.set_FirstRecBlock([-5, -5, 2.], [5, 0, 4])
+dfn3.add_FractureSet()
+
+dfn4 = DFN()
+dfn4.set_FirstRecBlock([-5, -5, 4.], [5, 0, 6])
+dfn4.add_FractureSet()
+
+dfn5 = DFN()
+dfn5.set_FirstRecBlock([-5, 0, 4.], [5, 5, 6])
+dfn5.add_FractureSet()
 
 generator = Generator()
 generator.add_Fixed_Region([-5.1, -5.1, -0.1], [5.1, 5.1, 2.02])
 generator.generate_RockMass_Multi(dfn1)
 generator.generate_RockMass_Multi(dfn2)
+generator.generate_RockMass_Multi(dfn3)
+generator.generate_RockMass_Multi(dfn4)
+# generator.generate_RockMass_Multi(dfn5)
 
-
-
-generator.export_BlocksDDAOpt("DIYBlockMulti")
+generator.export_BlocksDDAOpt("DataSaveGeo_simp_juxtap1_3")
 # for i in range(len(generator.blocks)):
 # generator.blocks[i].export_BlockVtk("Block"+str(i))

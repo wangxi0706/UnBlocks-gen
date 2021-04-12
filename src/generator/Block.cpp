@@ -77,6 +77,10 @@ void Block::generate_Geometry()
         }
 
         //Fill vertices vector
+        if ((int)planes.size() < 4)
+        {
+            printf("plane size=%d\n", (int)planes.size());
+        }
         ASSERT((int)planes.size() >= 4);
         for (int i = 0; i != (int)planes.size() - 2; ++i)
         {
