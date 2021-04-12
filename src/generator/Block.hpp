@@ -55,6 +55,9 @@ public:
     double beta;
     int id;
 
+    // add offset
+    Vector3r offset = {0, 0, 0};
+
 private:
     void generate_Geometry();
     void calculate_Volume();
