@@ -119,8 +119,14 @@ void FractureSet::add_BaecherFracture(double _meanDipDirection, double _meanDipA
 void FractureSet::trim_FractureBorders(Fracture &_fracture)
 {
     bool shouldTrim = false;
+    std::cout << "region points "
+              << dfn->regionMaxCorner[0] << " "
+              << dfn->regionMaxCorner[1] << " "
+              << dfn->regionMaxCorner[2] << "\n";
     for (auto &p : _fracture.borderPoints)
     {
+        std::cout << "border points "
+                  << p[0] << " " << p[1] << " " << p[2] << "\n";
         if (p[0] < dfn->regionMinCorner[0] || p[0] > dfn->regionMaxCorner[0])
         {
             shouldTrim = true;
@@ -137,7 +143,7 @@ void FractureSet::trim_FractureBorders(Fracture &_fracture)
             break;
         }
     }
-
+    // ASSERT(shouldTrim == false);
     if (shouldTrim)
     {
         for (auto &fracTri : _fracture.triangles)
@@ -152,7 +158,6 @@ void FractureSet::trim_FractureBorders(Fracture &_fracture)
                 }
             }
         }
-
         for (int i = 0; i != (int)_fracture.borderPoints.size(); i++)
         {
             if (_fracture.borderPoints[i][0] < dfn->regionMinCorner[0] || _fracture.borderPoints[i][0] > dfn->regionMaxCorner[0])
@@ -163,17 +168,15 @@ void FractureSet::trim_FractureBorders(Fracture &_fracture)
                 _fracture.borderPoints[i][0] = NAN;
         }
         _fracture.borderPoints.erase(std::remove_if(std::begin(_fracture.borderPoints), std::end(_fracture.borderPoints), [](Vector3r &_p) { return (std::isnan(_p[0])); }), std::end(_fracture.borderPoints));
-
-        for (int i = 0; i != (int)_fracture.borderPoints.size() - 1; i++)
+        for (int i = 0; i < (int)_fracture.borderPoints.size() - 1; i++)
         {
-            for (int j = i + 1; j != (int)_fracture.borderPoints.size(); j++)
+            for (int j = i + 1; j < (int)_fracture.borderPoints.size(); j++)
             {
                 if (checkEquality((_fracture.borderPoints[i] - _fracture.borderPoints[j]).norm(), 0))
                     _fracture.borderPoints[j][0] = NAN;
             }
         }
         _fracture.borderPoints.erase(std::remove_if(std::begin(_fracture.borderPoints), std::end(_fracture.borderPoints), [](Vector3r &_p) { return (std::isnan(_p[0])); }), std::end(_fracture.borderPoints));
-
         Functions::organize_Points(_fracture.center, _fracture.unitVector, _fracture.borderPoints);
 
         _fracture.trimmedTriangles.clear();
@@ -190,11 +193,12 @@ void FractureSet::trim_FractureBorders(Fracture &_fracture)
 
 void FractureSet::add_CircularFracture(PyList _center, double _dipDirection, double _dipAngle, double _radius)
 {
+    std::cout << "begin done\n";
     Vector3r center = pyListToVec3(_center);
     center[0] -= dfn->offset[0];
     center[1] -= dfn->offset[1];
     center[2] -= dfn->offset[2];
-
+    std::cout << "offset done\n";
     double echis = (M_PI / 2) - _dipAngle * M_PI / 180.0;
     double kapa = 0;
     double dipDirection = _dipDirection * M_PI / 180.0;
@@ -205,12 +209,16 @@ void FractureSet::add_CircularFracture(PyList _center, double _dipDirection, dou
     Vector3r unitVector = {cos(kapa) * cos(echis), -sin(kapa) * cos(echis), -sin(echis)};
     ASSERT(checkEquality(unitVector.norm(), 1));
     unitVector.normalize();
-
+    // added to debug
+    std::cout << "normalize done\n";
     std::vector<Vector3r> borderPoints;
     Vector3r vectorCenterToBorder = center.cross(unitVector);
     ASSERT(!checkEquality(vectorCenterToBorder.norm(), 0));
     vectorCenterToBorder.normalize();
     vectorCenterToBorder *= _radius;
+    std::cout << "center " << center[0] << " " << center[1] << " " << center[2] << " "
+              << "vectorCenterToBorder " << vectorCenterToBorder[0] << " " << vectorCenterToBorder[1]
+              << " " << vectorCenterToBorder[2] << '\n';
     for (int i = 0; i != dfn->nFracBorderPoints; i++)
     {
         double rotAngle = (double)i * (2 * M_PI) / (double)dfn->nFracBorderPoints;
@@ -219,9 +227,11 @@ void FractureSet::add_CircularFracture(PyList _center, double _dipDirection, dou
         Vector3r pointToBorder = center + q * vectorCenterToBorder;
         borderPoints.push_back(pointToBorder);
     }
-
+    std::cout << "begin make frac\n";
     std::shared_ptr<Fracture> fracture = std::make_shared<Fracture>((int)fractures.size(), center, unitVector, borderPoints);
+    std::cout << "end make frac\n";
     trim_FractureBorders(*fracture);
+    std::cout << "trim done\n";
     fractures.push_back(fracture);
     std::cout << "Fracture id " << fracture->id << " added!" << std::endl;
 }
@@ -255,6 +265,15 @@ void FractureSet::add_TriangularFracture(PyList _pointA, PyList _pointB, PyList 
     Vector3r pointA = pyListToVec3(_pointA);
     Vector3r pointB = pyListToVec3(_pointB);
     Vector3r pointC = pyListToVec3(_pointC);
+    pointA[0] -= dfn->offset[0];
+    pointA[1] -= dfn->offset[1];
+    pointA[2] -= dfn->offset[2];
+    pointB[0] -= dfn->offset[0];
+    pointB[1] -= dfn->offset[1];
+    pointB[2] -= dfn->offset[2];
+    pointC[0] -= dfn->offset[0];
+    pointC[1] -= dfn->offset[1];
+    pointC[2] -= dfn->offset[2];
     Vector3r center = (pointA + pointB + pointC) / 3.0;
     Vector3r unitVector = (pointB - pointA).cross(pointC - pointA);
     unitVector.normalize();

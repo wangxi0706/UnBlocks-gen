@@ -144,6 +144,9 @@ void Generator::generate_RockMass(DFN &_dfn)
     regionMaxCorner = _dfn.regionMaxCorner;
     regionMinCorner = _dfn.regionMinCorner;
 
+    // added, to enable multi usage of generate_RockMass
+    blockNs.push_back((int)blocks.size());
+
     //First block generation
     Plane planeX0({-1, 0, 0}, _dfn.regionMinCorner[0]);
     Plane planeX1({1, 0, 0}, _dfn.regionMaxCorner[0]);
@@ -167,7 +170,7 @@ void Generator::generate_RockMass(DFN &_dfn)
         {
             std::cout << "Fracture id " << frac->id << " from Fracture Set " << fracset->id << " is being analysed!" << std::endl;
             int nBlocks = (int)blocks.size();
-            for (int i = 0; i != nBlocks; ++i)
+            for (int i = blockNs.back(); i != nBlocks; ++i)
             {
                 if ((blocks[i]->boundingSphereCenter - frac->center).norm() < blocks[i]->boundingSphereRadius + frac->boundingSphereRadius)
                 {
@@ -208,10 +211,13 @@ void Generator::generate_RockMass(DFN &_dfn)
         }
     }
 
-    for (int i = 0; i != (int)blocks.size(); ++i)
+    for (int i = blockNs.back(); i != (int)blocks.size(); ++i)
     {
         blocks[i]->generate_Geometry();
         blocks[i]->offset = _dfn.offset;
+        std::cout << blocks[i]->offset[0] << " "
+                  << blocks[i]->offset[1] << " "
+                  << blocks[i]->offset[2] << std::endl;
     }
 }
 
@@ -465,7 +471,11 @@ void Generator::export_BlocksVtk(std::string _fileName)
     {
         for (auto &v : b->vertices)
         {
-            out << v[0] << " " << v[1] << " " << v[2] << std::endl;
+            out
+                << v[0] + b->offset[0] << " "
+                << v[1] + b->offset[1] << " "
+                << v[2] + b->offset[2]
+                << std::endl;
         }
     }
 

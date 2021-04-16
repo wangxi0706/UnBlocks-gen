@@ -78,6 +78,9 @@ public:
 
     std::vector<std::shared_ptr<Block>> blocks;
 
+    // added
+    std::vector<int> blockNs;
+
 private:
     double calculate_BoundingSphereRadius(const Block &_block);
     double calculate_InscribedSphere(const Block &_block);
