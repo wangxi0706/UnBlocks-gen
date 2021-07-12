@@ -13,35 +13,51 @@
 
 
 from unblocks import *
-nw = 3
-nh = 25
-nv = 40
-w = 1.5
+nw = 1
+nh = 50
+nv = 50
+w = 3
 h = 3
 v = 1.5
 ww = nw*w
 hh = nh*h
 vv = nv*v
-ww0 = ww/2-300
-ww1 = ww/2+200
-hh0 = hh/2-150
-hh1 = hh/2+150
+ww0 = ww/2-50
+ww1 = ww/2+50
+hh0 = hh/2-20
+hh1 = hh/2+20
 generator = Generator()
 
+# dfn = DFN()
+# min = [ww+0.2, hh/2-5, vv/2-8]
+# max = [ww+8.2, hh/2+3, vv/2]
+# dfn.set_FirstRecBlock(min, max)
+# dfn.add_FractureSet()
+# generator.generate_RockMass_Multi(dfn)
+
+# base
+# dfn = DFN()
+# min = [ww0, hh0, -10]
+# max = [ww1, hh1, -5]
+# dfn.set_FirstRecBlock(min, max)
+# dfn.add_FractureSet()
+# generator.generate_RockMass_Multi(dfn)
+
+# two bases
+nnh = 10.3
 dfn = DFN()
-min = [ww+0.2, hh/2-5, vv/2-8]
-max = [ww+8.2, hh/2+3, vv/2]
+min = [-1, -1, -v]
+max = [ww+1, h*nnh, 0]
+dfn.set_FirstRecBlock(min, max)
+dfn.add_FractureSet()
+generator.generate_RockMass_Multi(dfn)
+dfn = DFN()
+min = [-1, hh-h*nnh, -v]
+max = [ww+1, hh+1, 0]
 dfn.set_FirstRecBlock(min, max)
 dfn.add_FractureSet()
 generator.generate_RockMass_Multi(dfn)
 
-
-dfn = DFN()
-min = [ww0, hh0, -10]
-max = [ww1, hh1, 0]
-dfn.set_FirstRecBlock(min, max)
-dfn.add_FractureSet()
-generator.generate_RockMass_Multi(dfn)
 
 for iw in range(nw):
     for iv in range(nv):
@@ -76,6 +92,6 @@ for iw in range(nw):
                 generator.generate_RockMass_Multi(dfn)
 
 
-generator.add_Fixed_Region([ww0-.1, hh0-.1, -10.1], [ww1+.1, hh1+.1, .1])
-generator.export_BlocksDDAOpt("test_multi_collision"+str(nw*nh*nv))
-generator.export_BlocksVtk("test_multi_collision"+str(nw*nh*nv))
+generator.add_Fixed_Region([-1.1, -1.1, -v-0.1], [ww+1.1, hh+1.1, .1])
+generator.export_BlocksDDAOpt("test_multi_fall"+str(nw*nh*nv))
+generator.export_BlocksVtk("test_multi_fall"+str(nw*nh*nv))

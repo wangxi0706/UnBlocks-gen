@@ -15,20 +15,20 @@ from unblocks import *
 generator = Generator()
 
 dfn = DFN()
-dfn.set_FirstRecBlock([2, 2, 1], [4, 4, 2])
-dfn.add_FractureSet()
-generator.generate_RockMass_Multi(dfn)
-
-dfn = DFN()
-dfn.set_FirstRecBlock([6, 2, 1], [8, 4, 2])
+dfn.set_FirstRecBlock([2, 2, 2], [4, 4, 3])
 dfn.add_FractureSet()
 generator.generate_RockMass_Multi(dfn)
 
 # dfn = DFN()
-# dfn.set_FirstRecBlock([0, 0, 0], [10, 6, 1])
+# dfn.set_FirstRecBlock([6, 2, 1], [8, 4, 2])
 # dfn.add_FractureSet()
 # generator.generate_RockMass_Multi(dfn)
 
+dfn = DFN()
+dfn.set_FirstRecBlock([0, 0, 0], [10, 6, 1])
+dfn.add_FractureSet()
+generator.generate_RockMass_Multi(dfn)
+
 generator.add_Fixed_Region([-.1, -.1, -.1], [20.1, 6.1, 1.1])
-generator.export_BlocksDDAOpt("Test_collision2")
-generator.export_BlocksVtk("Test_collision2")
+generator.export_BlocksDDAOpt("Test_freefall")
+generator.export_BlocksVtk("Test_freefall")
