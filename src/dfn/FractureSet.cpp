@@ -285,7 +285,7 @@ void FractureSet::add_TriangularFracture(PyList _pointA, PyList _pointB, PyList 
     borderPoints.push_back(pointC);
 
     std::shared_ptr<Fracture> fracture = std::make_shared<Fracture>((int)fractures.size(), center, unitVector, borderPoints);
-    trim_FractureBorders(*fracture);
+    trim_FractureBorders(*fracture); //trim if exceed the bounding region
     fractures.push_back(fracture);
     std::cout << "Triangular fracture id " << fracture->id << " added!" << std::endl;
 }

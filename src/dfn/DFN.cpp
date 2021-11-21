@@ -121,18 +121,43 @@ void DFN::set_RegionMaxCorner(PyList _point1)
 	regionMaxCorner = point;
 	regionVolume = (regionMaxCorner[0] - regionMinCorner[0]) * (regionMaxCorner[1] - regionMinCorner[1]) * (regionMaxCorner[2] - regionMinCorner[2]);
 
-	Triangle triangle1({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]});
-	Triangle triangle2({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]});
-	Triangle triangle3({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]});
-	Triangle triangle4({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]});
-	Triangle triangle5({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]});
-	Triangle triangle6({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]});
-	Triangle triangle7({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]});
-	Triangle triangle8({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]});
-	Triangle triangle9({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]});
-	Triangle triangle10({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]}, {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]});
-	Triangle triangle11({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]});
-	Triangle triangle12({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]});
+	// 添加了12个三角面片
+	Triangle triangle1({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]},
+					   {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]},
+					   {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]});
+	Triangle triangle2({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]},
+					   {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]},
+					   {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]});
+	Triangle triangle3({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]},
+					   {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]},
+					   {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]});
+	Triangle triangle4({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]},
+					   {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]},
+					   {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]});
+	Triangle triangle5({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]},
+					   {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]},
+					   {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]});
+	Triangle triangle6({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]},
+					   {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]},
+					   {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]});
+	Triangle triangle7({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]},
+					   {regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]},
+					   {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]});
+	Triangle triangle8({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]},
+					   {regionMinCorner[0], regionMinCorner[1], regionMaxCorner[2]},
+					   {regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]});
+	Triangle triangle9({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]},
+					   {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]},
+					   {regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]});
+	Triangle triangle10({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]},
+						{regionMinCorner[0], regionMaxCorner[1], regionMinCorner[2]},
+						{regionMinCorner[0], regionMaxCorner[1], regionMaxCorner[2]});
+	Triangle triangle11({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]},
+						{regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]},
+						{regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]});
+	Triangle triangle12({regionMaxCorner[0], regionMaxCorner[1], regionMaxCorner[2]},
+						{regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]},
+						{regionMaxCorner[0], regionMinCorner[1], regionMaxCorner[2]});
 
 	modelRegion.clear();
 	modelRegion.push_back(triangle1);

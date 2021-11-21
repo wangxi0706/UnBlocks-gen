@@ -14,8 +14,8 @@
 
 from unblocks import *
 nw = 1
-nh = 50
-nv = 50
+nh = 200
+nv = 200
 w = 3
 h = 3
 v = 1.5
@@ -28,23 +28,8 @@ hh0 = hh/2-20
 hh1 = hh/2+20
 generator = Generator()
 
-# dfn = DFN()
-# min = [ww+0.2, hh/2-5, vv/2-8]
-# max = [ww+8.2, hh/2+3, vv/2]
-# dfn.set_FirstRecBlock(min, max)
-# dfn.add_FractureSet()
-# generator.generate_RockMass_Multi(dfn)
-
-# base
-# dfn = DFN()
-# min = [ww0, hh0, -10]
-# max = [ww1, hh1, -5]
-# dfn.set_FirstRecBlock(min, max)
-# dfn.add_FractureSet()
-# generator.generate_RockMass_Multi(dfn)
-
 # two bases
-nnh = 10.3
+nnh = 60.3
 dfn = DFN()
 min = [-1, -1, -v]
 max = [ww+1, h*nnh, 0]

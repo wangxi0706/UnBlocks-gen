@@ -28,7 +28,7 @@ from unblocks import *
 # generator.generate_RockMass(dfn)
 
 from unblocks import *
-n = 50
+n = 1500
 generator = Generator()
 generator.add_Fixed_Region(
     [-5*n/2-.1, -5*n/2-.1, -.1], [5*n/2+.1, 5*n/2+.1, 2+.1])

@@ -91,7 +91,7 @@ void Block::generate_Geometry()
                     Vector3r intersectionPoint = Vector3r::Zero();
                     if (Functions::calculate_threePlanesIntersection(planes[i], planes[j], planes[k], intersectionPoint))
                     {
-                        if (Functions::check_PointIntersection(intersectionPoint, planes))
+                        if (Functions::check_PointIntersection(intersectionPoint, planes))//if inside the halfspaces defined by block planes
                         {
                             bool verticeExist = false;
                             for (int l = 0; l != (int)vertices.size(); ++l)
@@ -168,9 +168,24 @@ void Block::generate_Geometry()
         }
     }
 
+    // added, calculate the center, set all plane vectors as outer normal
+    Vector3r center=Vector3r::Zero();
+    for(auto v : vertices){
+        center[0]+=v[0];center[1]+=v[1];center[2]+=v[2];
+    }
+    center[0]/=vertices.size();center[1]/=vertices.size();center[2]/=vertices.size();
+
     //Fill polygons vector
     for (int i = 0; i != (int)planes.size(); ++i)
     {
+        // added, to make sure all plane vectors points the outer normal
+        if(vertices[planesVerticesId[i][0]].dot(planes[i].unitVector)-
+            center.dot(planes[i].unitVector)<0)
+        {
+            planes[i].unitVector[0]*=-1;
+            planes[i].unitVector[1]*=-1;
+            planes[i].unitVector[2]*=-1;
+        }
         ASSERT((int)planesVerticesId[i].size() >= 3);
         Polygon newPolygon(planes[i].unitVector, planesVerticesId[i], vertices);
         polygons.push_back(newPolygon);

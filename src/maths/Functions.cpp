@@ -117,6 +117,7 @@ double Functions::vectorsAngle(Vector3r _centerPoint, Vector3r _unitVec, Vector3
     ASSERT(!std::isnan(angle));
 	Vector3r crossP1P2 = P1.cross(P2);
  	if (crossP1P2.dot(_unitVec) > 0) angle = -angle + 2*M_PI;
+    // if (crossP1P2.dot(_unitVec) < 0) angle = -angle + 2*M_PI;//modified, make sure outer normal 
     ASSERT(angle >= 0 && angle < 2*M_PI);
 	return angle;
 }
