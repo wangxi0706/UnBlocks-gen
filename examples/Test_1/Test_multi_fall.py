@@ -14,8 +14,8 @@
 
 from unblocks import *
 nw = 1
-nh = 200
-nv = 200
+nh = 50
+nv = 50
 w = 3
 h = 3
 v = 1.5
