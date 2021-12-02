@@ -1,4 +1,4 @@
-/*    
+/*
     UnBlocks-Gen: 3D rock mass generator and analyser
     Copyright (C) 2020  Leandro Lima Rasmussen
 
@@ -48,6 +48,14 @@ void Generator_Wrapper()
         .def("generate_RockMass_Multi", &Generator::generate_RockMass_Multi)
         // added
         .def("add_Fixed_Region", &Generator::add_Fixed_Region)
+        // added
+        .def("input_BondedBlocks", &Generator::input_BondedBlocks)
+        // added
+        .def("input_ViscousBound", &Generator::input_ViscousBound)
+        // added
+        .def("input_RollerBound", &Generator::input_RollerBound)
+        // added
+        .def("input_InputBound", &Generator::input_InputBound)
 
         .def("excavate_RockMass", &Generator::excavate_RockMass)
 
@@ -144,10 +152,10 @@ void Generator::generate_RockMass(DFN &_dfn)
     regionMaxCorner = _dfn.regionMaxCorner;
     regionMinCorner = _dfn.regionMinCorner;
 
-    // added, to enable multi usage of generate_RockMass
+    // added, to enable multi usage of generate_RockMass, but halfway, not tested
     blockNs.push_back((int)blocks.size());
 
-    //First block generation
+    // First block generation
     Plane planeX0({-1, 0, 0}, _dfn.regionMinCorner[0]);
     Plane planeX1({1, 0, 0}, _dfn.regionMaxCorner[0]);
     Plane planeY0({0, -1, 0}, _dfn.regionMinCorner[1]);
@@ -227,13 +235,13 @@ void Generator::generate_RockMass_Multi(DFN &_dfn)
 
     regionMaxCorner = _dfn.regionMaxCorner;
     regionMinCorner = _dfn.regionMinCorner;
-    //First block generation
-    // Plane planeX0({-1, 0, 0}, _dfn.firstBlkMin[0]);
-    // Plane planeX1({1, 0, 0}, _dfn.firstBlkMax[0]);
-    // Plane planeY0({0, -1, 0}, _dfn.firstBlkMin[1]);
-    // Plane planeY1({0, 1, 0}, _dfn.firstBlkMax[1]);
-    // Plane planeZ0({0, 0, -1}, _dfn.firstBlkMin[2]);
-    // Plane planeZ1({0, 0, 1}, _dfn.firstBlkMax[2]);
+    // First block generation
+    //  Plane planeX0({-1, 0, 0}, _dfn.firstBlkMin[0]);
+    //  Plane planeX1({1, 0, 0}, _dfn.firstBlkMax[0]);
+    //  Plane planeY0({0, -1, 0}, _dfn.firstBlkMin[1]);
+    //  Plane planeY1({0, 1, 0}, _dfn.firstBlkMax[1]);
+    //  Plane planeZ0({0, 0, -1}, _dfn.firstBlkMin[2]);
+    //  Plane planeZ1({0, 0, 1}, _dfn.firstBlkMax[2]);
     Plane planeX0(_dfn.firstBlkMin, {-1, 0, 0});
     Plane planeX1(_dfn.firstBlkMax, {1, 0, 0});
     Plane planeY0(_dfn.firstBlkMin, {0, -1, 0});
@@ -311,6 +319,59 @@ void Generator::add_Fixed_Region(PyList _MinPoint, PyList _MaxPoint)
     fixRegion.push_back(box);
 }
 
+void Generator::input_BondedBlocks(PyList _bondedIndexes)
+{
+    // convert input list into vector of indexes
+    vecInt Indexes = pyListToVecInt(_bondedIndexes);
+    // insert input list into bondIndexes
+    vBondIndex.insert(vBondIndex.end(), Indexes.begin(), Indexes.end());
+
+    int l = (int)vBondIndex.size();
+    ASSERT(l % 2 == 0);
+}
+
+void Generator::input_ViscousBound(int _visBlkId, PyList _visNor) // get viscous indexes and normals
+{
+    // store the block id
+    vVisIndex.push_back(_visBlkId);
+
+    // unify the normal vector
+    Vector3r normalDir = pyListToVec3(_visNor);
+    double norm = normalDir.norm();
+    ASSERT(!checkEquality(norm, 0));
+
+    // store the normal vector
+    vVisNormal.push_back(normalDir / norm);
+}
+
+void Generator::input_InputBound(
+    int _inputBlkId, PyList _inputNor)
+{
+    // store the input id
+    vInputIndex.push_back(_inputBlkId);
+
+    // unify normal vector
+    Vector3r normalDir = pyListToVec3(_inputNor);
+    double norm = normalDir.norm();
+    ASSERT(!checkEquality(norm, 0));
+
+    vInputNormal.push_back(normalDir);
+}
+
+void Generator::input_RollerBound(int _rollerBlkId, PyList _rollerNor)
+{
+    // store the block id
+    vRollerIndex.push_back(_rollerBlkId);
+
+    // unify the normal vector
+    Vector3r normalDir = pyListToVec3(_rollerNor);
+    double norm = normalDir.norm();
+    ASSERT(!checkEquality(norm, 0));
+
+    // store the normal vector
+    vRollerNormal.push_back(normalDir / norm);
+}
+
 void Generator::excavate_RockMass()
 {
     for (auto &cElem : excavationElements)
@@ -355,7 +416,9 @@ void Generator::excavate_RockMass()
         if (Functions::pointVolumeIntersection(center, excavationRegion))
             b->id = -1;
     }
-    blocks.erase(std::remove_if(std::begin(blocks), std::end(blocks), [](std::shared_ptr<Block> &_b) { return (_b->id == -1); }), std::end(blocks));
+    blocks.erase(std::remove_if(std::begin(blocks), std::end(blocks), [](std::shared_ptr<Block> &_b)
+                                { return (_b->id == -1); }),
+                 std::end(blocks));
 }
 
 template <class X>
@@ -620,6 +683,7 @@ void Generator::export_BlocksDDA(std::string _fileName)
     out.close();
 }
 
+// added, output in formats that can be easily processed
 void Generator::export_BlocksDDAOpt(std::string _fileName)
 {
     int nTotalBlocks = (int)blocks.size();
@@ -648,7 +712,7 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
     int auxId = 0;
     for (auto &b : blocks)
     {
-        //output vertex start id and vertex length
+        // output vertex start id and vertex length
         out << auxId << " " << (int)b->vertices.size() << std::endl;
         auxId += (int)b->vertices.size();
     }
@@ -696,7 +760,7 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
             // out << (int)p.verticesId.size() << " ";
             for (auto &vId : p.verticesId)
             {
-                out << vId << " "; //local id, global id=local id + start id
+                out << vId << " "; // local id, global id=local id + start id
             }
         }
         // auxId += b->vertices.size();
@@ -732,7 +796,7 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
         // out << 1 + nFaces + nPoints << " " << nFaces << " ";
         for (auto &e : b->edges)
         {
-            out << e.verticesIdA << " " << e.verticesIdB << " "; //local id, global id=local id + start id
+            out << e.verticesIdA << " " << e.verticesIdB << " "; // local id, global id=local id + start id
         }
         auxId += nEdges;
         out << std::endl;
@@ -771,13 +835,19 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
     for (auto &b : blocks)
     {
         int flag = 1;
+        if (fixRegion.size() == 0)
+        {
+            flag = 0;
+            goto to;
+        }
+
         for (auto &box : fixRegion)
         {
             for (auto &v : b->vertices)
             {
                 if (!inBox(box, v, b->offset))
                 {
-                    flag = 0; //not in box, so free
+                    flag = 0; // not in box, so free
                     goto to;
                 }
             }
@@ -793,8 +863,206 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
         out << b->get_Volume() << std::endl;
     }
 
+    ////1 BOND: should output the bonded blocks through bonded index pairs
+    out << " " << std::endl;
+    out << "/////////////Boundaries///////////" << std::endl;
+    int nBond = (int)vBondIndex.size() / 2;
+    ASSERT(vBondIndex.size() % 2 == 0);
+
+    out << "Bond: " << std::to_string(nBond) << std::endl;
+    for (size_t i = 0; i < nBond; i++)
+    {
+        // get block index and block
+        int nB1 = vBondIndex[2 * i], nB2 = vBondIndex[2 * i + 1];
+        std::vector<Polygon> &pos1 = blocks[nB1]->polygons;
+        std::vector<Polygon> &pos2 = blocks[nB2]->polygons;
+        // find the face id
+        int ipoi(-1), jpoj(-1);
+        for (size_t ipo = 0; ipo < pos1.size(); ipo++)
+        {
+            Vector3r &n1 = pos1[ipo].unitVector;
+            for (size_t jpo = 0; jpo < pos2.size(); jpo++)
+            {
+                Vector3r &n2 = pos2[jpo].unitVector;
+                if (abs(n1.dot(n2) + 1) < sin(TOLA / 180 * 3.1415926)) // found the opposite face
+                {
+                    // when opposite, calculate the distance
+                    if (abs(pos2[jpo].unitVector.dot(
+                            pos1[ipo].centroid - pos2[jpo].centroid)) < TOLD)
+                    {
+                        ipoi = ipo;
+                        jpoj = jpo;
+                    }
+                }
+            }
+        }
+        // ensure found the bond face, and the face has exact the same number of vertices
+        ASSERT(ipoi >= 0 && jpoj >= 0 &&
+               pos2[jpoj].verticesId.size() == pos1[ipoi].verticesId.size());
+        out << nB1 << ' ' << nB2 << ' ' << ipoi << ' ' << jpoj
+            << ' ' << pos2[jpoj].verticesId.size() << ' ' << std::endl;
+    }
+
+    ////2 VIS: should output viscous boundaries through block and orientation
+    int nVis = (int)vVisIndex.size();
+    out << std::endl
+        << "Viscous: " << std::to_string(nVis) << std::endl;
+    for (size_t i = 0; i < nVis; i++)
+    {
+        // get block index and block
+        int nB = vVisIndex[i];
+        // normal vector and polygons
+        Vector3r &normal = vVisNormal[i];
+        std::vector<Polygon> &pos = blocks[nB]->polygons;
+
+        // to store the face index to be found
+        int nF = -1;
+        // find the face to be apply viscous boundary
+        for (size_t j = 0; j < pos.size(); j++)
+        {
+            if (abs((pos[j].unitVector.dot(normal) - 1)) < sin(TOLA / 180 * 3.1415926))
+            {
+                nF = j;
+            }
+        }
+
+        // debug
+        // Vector3r &unit=pos[nF].unitVector;
+        // printf("Vis: %e, %e, %e; %e, %e, %e\n",
+        //     normal[0],normal[1],normal[2],  unit[0],unit[1],unit[2]);
+
+        ASSERT(nF >= 0); // if fail, fail to find the face to be viscous boundary
+
+        // Found the face id, output the block id and face id.
+        out << nB << ' ' << nF << std::endl;
+    }
+
+    ////3 ROLL: should output roller boundaries through block and orientation
+    int nRoller = (int)vRollerIndex.size();
+    out << std::endl
+        << "Roller: " << std::to_string(nRoller) << std::endl;
+    for (size_t i = 0; i < nRoller; i++)
+    {
+        // get block index and block
+        int nB = vRollerIndex[i];
+        // normal vector and polygons
+        Vector3r &normal = vRollerNormal[i];
+        std::vector<Polygon> &pos = blocks[nB]->polygons;
+
+        // to store the face index to be found
+        int nF = -1;
+        // find the face to be apply viscous boundary
+        for (size_t j = 0; j < pos.size(); j++)
+        {
+            if (abs((pos[j].unitVector.dot(normal) - 1)) < sin(TOLA / 180 * 3.1415926))
+            {
+                nF = j;
+            }
+        }
+
+        // debug
+        // Vector3r &unit=pos[nF].unitVector;
+        // printf("Vis: %e, %e, %e; %e, %e, %e\n",
+        //     normal[0],normal[1],normal[2],  unit[0],unit[1],unit[2]);
+
+        ASSERT(nF >= 0); // if fail, fail to find the face to be viscous boundary
+
+        // Found the face id, output the block id and face id.
+        out << nB << ' ' << nF << std::endl;
+    }
+
+    ////4 INPUT: should output input boundaries through block and orientation
+    int nInput = (int)vInputIndex.size();
+    out << std::endl
+        << "Input: " << std::to_string(nInput) << std::endl;
+    for (size_t i = 0; i < nInput; i++)
+    {
+        // get block index and block
+        int nB = vInputIndex[i];
+        // normal vector and polygons
+        Vector3r &normal = vInputNormal[i];
+        std::vector<Polygon> &pos = blocks[nB]->polygons;
+
+        // to store the face index to be found
+        int nF = -1;
+        double dArea = 0;
+        // find the face to be apply viscous boundary
+        for (size_t j = 0; j < pos.size(); j++)
+        {
+            if (abs((pos[j].unitVector.dot(normal) - 1)) < sin(TOLA / 180 * 3.1415926))
+            {
+                nF = j;
+                dArea = pos[j].area;
+            }
+        }
+        // if fail, fail to find the face to be viscous boundary
+        ASSERT(nF >= 0 && dArea > 0);
+
+        // Found the face id, output the block id and face id.
+        out << nB << ' ' << nF << ' ' << dArea << ' '
+            << pos[nF].centroid[0] << ' '
+            << pos[nF].centroid[1] << ' '
+            << pos[nF].centroid[2] << std::endl;
+    }
+
     out.close();
 }
+// return false if do not find opposite faces
+// bool get_BondInfo(Block& b1, Block& b2, Bond& bond){
+// // get face id, point, direction, area, is mech needed?
+// // first loop the faces
+// std::vector<Vector3r> &vertices1=b1.vertices;
+// std::vector<Vector3r> &vertices2=b2.vertices;
+// for (size_t i = 0; i < b1.polygons; i++)
+// {
+//     for (size_t j = 0; j < b2.polygons; j++)
+//     {
+//         Polygon & po1=polygons[i], & po2=polygons[j];
+//         // 0.5 °的限额，如果相差在0.5度以内，就算是对上了。
+//         if(abs(po1.unitVector.dot(po2.unitVector)+1)
+//                 <sin(TOLA/180*3.1415926)){
+//             // 现在就算是找到了,然后存储点、normal、area等信息
+//             bond.nFId1=i,bond.nFId2=j, bond.dArea=po1.area;
+//             bond.nDir=(po2.unitVector-po1.unitVector)/2;
+
+//             std::vector<int> &verticesId1=po1.verticesId;
+//             std::vector<int> &verticesId2=po2.verticesId;
+//             ASSERT(verticesId1.size()==verticesId2.size());//应该是两个相同的平面
+//             ASSERT(verticesId1.size()==NBONDP);            //还是考虑长方体的粘结
+//             bool flag=false;//denote whether found the same point or not
+//             int nvi,nvj;
+//             for (size_t vi = 0; i < verticesId1.size(); i++)
+//             {
+//                 for (size_t vj = 0; j < verticesId1.size(); j++)
+//                 {
+//                     Vector3r& pvi=vertices1[verticesId1[vi]],&pvj=vertices2[verticesId2[vj]];
+//                     if((pvi-pvj).norm()<TOLD){//found the same point
+//                         flag=true;
+//                         nvi=vi,nvj=vj;
+//                     }
+//                 }
+//             }
+//             if(flag){//found the same point on the opposite plane
+//                 for (size_t vi = 0; i < verticesId1.size(); i++)
+//                 {
+//                     int id1=(vi+nvi>=verticesId1.size())?
+//                             (vi+nvi-verticesId1.size())
+//                             :(vi+nvi);
+//                     int id2=(vi+nvj>=verticesId2.size())?
+//                             (vi+nvj-verticesId2.size())
+//                             :(vi+nvj);
+//                     Vector3r& pvi=vertices1[verticesId1[id1]],
+//                             & pvj=vertices2[verticesId2[id2]];
+//                     ASSERT((pvi-pvj).norm()<TOLD);  //should be the same point;
+//                     bond.P1[vi]=pvi,bond.P2[vi]=pvj;//should record the adjacent points
+//                 }
+//                 return true;
+//             }
+//         }
+//     }
+// }
+//     return false;
+// }
 
 void Generator::import_ExcavationElementsObj(std::string _fileName)
 {
@@ -802,7 +1070,7 @@ void Generator::import_ExcavationElementsObj(std::string _fileName)
     in.open(_fileName + ".obj");
     ASSERT(!in.fail());
 
-    //Read coordinates from mesh file
+    // Read coordinates from mesh file
     std::cout.precision(16);
     std::vector<Vector3r> coordinates;
     std::string line;
@@ -822,7 +1090,7 @@ void Generator::import_ExcavationElementsObj(std::string _fileName)
         getline(in, line);
     };
 
-    //Read connectivity from mesh file and create triangles
+    // Read connectivity from mesh file and create triangles
     while (line[0] == 'f')
     {
         std::stringstream ss(line);

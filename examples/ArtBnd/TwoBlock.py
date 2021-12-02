@@ -15,7 +15,7 @@ from unblocks import *
 lx = 2
 ly = 2
 lz = 2
-nx = 2
+nx = 150
 
 # dfn = DFN()
 # dfn.set_RegionMaxCorner([lx*nx, ly, lz])
@@ -26,11 +26,22 @@ nx = 2
 generator = Generator()
 for i in range(nx):
     dfn = DFN()
-    min = [i*lx, ly, lz]
-    max = [(i+1)*lx, ly*2, lz*2]
+    min = [i*lx, 0, 0]
+    max = [(i+1)*lx, ly, lz]
     dfn.set_FirstRecBlock(min, max)
     dfn.add_FractureSet()
+    generator.input_RollerBound(i, [0, 0, 1])
+    generator.input_RollerBound(i, [0, 0, -1])
     generator.generate_RockMass_Multi(dfn)
+
+for i in range(nx-1):
+    generator.input_BondedBlocks([i, i+1])
+
+# be careful about the outer normal, should be outwards!
+generator.input_ViscousBound(0, [-1, 0, 0])
+generator.input_ViscousBound(nx-1, [1, 0, 0])
+
+generator.input_InputBound(0, [-1, 0, 0])  # 0=disp, 1=load
 
 # dfn.export_DFNVtk("dfnCreated")
 # dfn.export_RegionVtk("modelRegion")

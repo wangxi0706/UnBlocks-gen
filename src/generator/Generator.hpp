@@ -50,11 +50,49 @@ public:
     void export_BlocksVtk(std::string _fileName);
 
     //Added, extract DDA blocks
+    typedef boost::python::list PyList;
+#define TOLA 0.5  //tolerance for zero angle
+#define TOLD 1e-6 //tolerance for zero dist
     void export_BlocksDDA(std::string _fileName);
     void export_BlocksDDAOpt(std::string _filename);
+//Added, bond constraints
+#define NBONDP 4 //# of bonded point
+    // struct Bond
+    // {
+    //     int nBlkId1;
+    //     int nBlkId2;
+    //     int nFId1;
+    //     int nFId2;
+    //     Vector3 P1[NBONDP]; //bonded points, should be equal to each other initially
+    //     Vector3 P2[NBONDP];
+    //     int nP1[NBONDP],nP2[NBONDP];
+    //     Vector3 nDir; //average normal of two bonded faces, update each step
+    //     double dArea; //area of the bonded face, do not need update
+    //     int nMech;   //id of the mechanical paras
+    // };
+    // return false if do not find opposite faces
+    // bool get_BondInfo(Block& b1, Block& b2,Bond& bond);
+    vecInt vBondIndex;                              //to store bond indexes
+    void input_BondedBlocks(PyList _bondedIndexes); //get bonded indexes
 
-    boost::python::list
-    get_Volumes(bool _considerBorderBlocks);
+    // Added, viscous boundaries
+    vecInt vVisIndex; //indexes of blocks that have viscous boudnaries
+    vecP vVisNormal;  //normal direction of viscous boundaries
+    //get viscous indexes and normals, do not need to be unit normals
+    void input_ViscousBound(int _visBlkId, PyList _visNor);
+
+    // Added, input boundaries
+    vecInt vInputIndex;
+    vecP vInputNormal;
+    void input_InputBound(int _inputBlkId, PyList _inputNor);
+
+    // Added, roller boundaries
+    vecInt vRollerIndex;
+    vecP vRollerNormal;
+    //get roller indexes and normals, do not need to be unit normals
+    void input_RollerBound(int _rollerBlkId, PyList _rollerNor);
+
+    boost::python::list get_Volumes(bool _considerBorderBlocks);
     boost::python::list get_AlphaValues(bool _considerBorderBlocks);
     boost::python::list get_BetaValues(bool _considerBorderBlocks);
 

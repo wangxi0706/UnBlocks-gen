@@ -71,8 +71,8 @@ Polygon::Polygon(Vector3r _unitVector, std::vector<int> &_verticesId, std::vecto
     ASSERT((int)verticesId.size() >= 3);
     Vector3r unitVectorX = (center.cross(_unitVector)) / (center.cross(_unitVector)).norm();
     Vector3r unitVectorY = (_unitVector.cross(unitVectorX)) / (_unitVector.cross(unitVectorX)).norm();
-    // ASSERT(checkEquality(unitVectorX.norm(), 1)); //if norm is zero?
-    // ASSERT(checkEquality(unitVectorY.norm(), 1)); //
+    ASSERT(checkEquality(unitVectorX.norm(), 1)); //if norm is zero?
+    ASSERT(checkEquality(unitVectorY.norm(), 1)); //
     Matrix3r Transf = Matrix3r::Zero();
     Transf(0, 0) = unitVectorX[0];
     Transf(0, 1) = unitVectorX[1];
@@ -111,7 +111,7 @@ Polygon::Polygon(Vector3r _unitVector, std::vector<int> &_verticesId, std::vecto
     Cx *= double(1) / (6 * area);
     Cy *= double(1) / (6 * area);
     area = abs(area);
-    // ASSERT(!std::isnan(area) && area > 0);
+    ASSERT(!std::isnan(area) && area > 0);
 
     Vector3r centroidIn2DPlaneCoordinates = {Cx, Cy, 0};
     centroid = Transf.transpose() * centroidIn2DPlaneCoordinates + center;

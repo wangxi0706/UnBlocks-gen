@@ -230,8 +230,8 @@ void Block::generate_Geometry()
     calculate_AlphaBeta();
 
     std::cout << "Generated Block " << id << " Geometry" << std::endl;
-    printf("Block v0: %f, %f, %f\n",
-           vertices[0][0], vertices[0][1], vertices[0][2]);
+    // printf("Block v0: %f, %f, %f\n",
+    //        vertices[0][0], vertices[0][1], vertices[0][2]);
 }
 
 void Block::calculate_Volume()
