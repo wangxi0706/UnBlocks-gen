@@ -56,6 +56,8 @@ void Generator_Wrapper()
         .def("input_RollerBound", &Generator::input_RollerBound)
         // added
         .def("input_InputBound", &Generator::input_InputBound)
+        // added
+        .def("input_FixFaceBound", &Generator::input_FixFaceBound)
 
         .def("excavate_RockMass", &Generator::excavate_RockMass)
 
@@ -370,6 +372,20 @@ void Generator::input_RollerBound(int _rollerBlkId, PyList _rollerNor)
 
     // store the normal vector
     vRollerNormal.push_back(normalDir / norm);
+}
+
+void Generator::input_FixFaceBound(int _fixFaceBlkId, PyList _fixFaceNor)
+{
+    // store the block id
+    vFixFaceIndex.push_back(_fixFaceBlkId);
+
+    // unify the normal vector
+    Vector3r normalDir = pyListToVec3(_fixFaceNor);
+    double norm = normalDir.norm();
+    ASSERT(!checkEquality(norm, 0));
+
+    // store the normal vector
+    vFixFaceNormal.push_back(normalDir / norm);
 }
 
 void Generator::excavate_RockMass()
@@ -1003,6 +1019,35 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
             << pos[nF].centroid[0] << ' '
             << pos[nF].centroid[1] << ' '
             << pos[nF].centroid[2] << std::endl;
+    }
+
+    ////5 FIXFACE: should output fixed faces
+    int nFixFace = (int)vFixFaceIndex.size();
+    out << std::endl
+        << "FixFace: " << std::to_string(nFixFace) << std::endl;
+    for (size_t i = 0; i < nFixFace; i++)
+    {
+        // get block index and block
+        int nB = vFixFaceIndex[i];
+        // normal vector and polygons
+        Vector3r &normal = vFixFaceNormal[i];
+        std::vector<Polygon> &pos = blocks[nB]->polygons;
+
+        // to store the face index to be found
+        int nF = -1;
+        // find the face to be apply viscous boundary
+        for (size_t j = 0; j < pos.size(); j++)
+        { // find the face to be apply viscous boundary
+            if (abs((pos[j].unitVector.dot(normal) - 1)) < sin(TOLA / 180 * 3.1415926))
+            {
+                nF = j;
+            }
+        }
+
+        ASSERT(nF >= 0); // if fail, fail to find the face to be viscous boundary
+
+        // Found the face id, output the block id and face id.
+        out << nB << ' ' << nF << std::endl;
     }
 
     out.close();

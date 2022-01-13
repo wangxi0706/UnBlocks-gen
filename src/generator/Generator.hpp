@@ -1,4 +1,4 @@
-/*    
+/*
     UnBlocks-Gen: 3D rock mass generator and analyser
     Copyright (C) 2020  Leandro Lima Rasmussen
 
@@ -49,13 +49,13 @@ public:
     void export_ExcavationElementsVtk(std::string _fileName);
     void export_BlocksVtk(std::string _fileName);
 
-    //Added, extract DDA blocks
+    // Added, extract DDA blocks
     typedef boost::python::list PyList;
-#define TOLA 0.5  //tolerance for zero angle
-#define TOLD 1e-6 //tolerance for zero dist
+#define TOLA 0.5  // tolerance for zero angle
+#define TOLD 1e-6 // tolerance for zero dist
     void export_BlocksDDA(std::string _fileName);
     void export_BlocksDDAOpt(std::string _filename);
-//Added, bond constraints
+// Added, bond constraints
 #define NBONDP 4 //# of bonded point
     // struct Bond
     // {
@@ -72,13 +72,13 @@ public:
     // };
     // return false if do not find opposite faces
     // bool get_BondInfo(Block& b1, Block& b2,Bond& bond);
-    vecInt vBondIndex;                              //to store bond indexes
-    void input_BondedBlocks(PyList _bondedIndexes); //get bonded indexes
+    vecInt vBondIndex;                              // to store bond indexes
+    void input_BondedBlocks(PyList _bondedIndexes); // get bonded indexes
 
     // Added, viscous boundaries
-    vecInt vVisIndex; //indexes of blocks that have viscous boudnaries
-    vecP vVisNormal;  //normal direction of viscous boundaries
-    //get viscous indexes and normals, do not need to be unit normals
+    vecInt vVisIndex; // indexes of blocks that have viscous boudnaries
+    vecP vVisNormal;  // normal direction of viscous boundaries
+    // get viscous indexes and normals, do not need to be unit normals
     void input_ViscousBound(int _visBlkId, PyList _visNor);
 
     // Added, input boundaries
@@ -89,8 +89,13 @@ public:
     // Added, roller boundaries
     vecInt vRollerIndex;
     vecP vRollerNormal;
-    //get roller indexes and normals, do not need to be unit normals
+    // get roller indexes and normals, do not need to be unit normals
     void input_RollerBound(int _rollerBlkId, PyList _rollerNor);
+
+    // Added, fixedFace with springs
+    vecInt vFixFaceIndex;
+    vecP vFixFaceNormal;
+    void input_FixFaceBound(int _fixFaceBlkId, PyList _fixFaceNor);
 
     boost::python::list get_Volumes(bool _considerBorderBlocks);
     boost::python::list get_AlphaValues(bool _considerBorderBlocks);
@@ -133,4 +138,4 @@ private:
     double maxAspectRatio = INFINITY;
 };
 
-#endif //GENERATOR_H
+#endif // GENERATOR_H

@@ -125,8 +125,8 @@ void FractureSet::trim_FractureBorders(Fracture &_fracture)
               << dfn->regionMaxCorner[2] << "\n";
     for (auto &p : _fracture.borderPoints)
     {
-        std::cout << "border points "
-                  << p[0] << " " << p[1] << " " << p[2] << "\n";
+        // std::cout << "border points "
+                //   << p[0] << " " << p[1] << " " << p[2] << "\n";
         if (p[0] < dfn->regionMinCorner[0] || p[0] > dfn->regionMaxCorner[0])
         {
             shouldTrim = true;

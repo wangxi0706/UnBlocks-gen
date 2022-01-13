@@ -12,10 +12,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from unblocks import *
-lx = 2
-ly = 2
+off_x = 0
+off_y = 0
+off_z = 0
+lx = 200
+ly = 200
 lz = 2
-nx = 150
+nx = 1
 
 # dfn = DFN()
 # dfn.set_RegionMaxCorner([lx*nx, ly, lz])
@@ -26,22 +29,34 @@ nx = 150
 generator = Generator()
 for i in range(nx):
     dfn = DFN()
-    min = [i*lx, 0, 0]
-    max = [(i+1)*lx, ly, lz]
+    min = [off_x+i*lx, off_y+0, off_z+0]
+    max = [off_x+(i+1)*lx, off_y+ly, off_z+lz]
     dfn.set_FirstRecBlock(min, max)
     dfn.add_FractureSet()
     generator.input_RollerBound(i, [0, 0, 1])
     generator.input_RollerBound(i, [0, 0, -1])
+    # # for P wave propagation
+    # generator.input_RollerBound(i, [0,  1, 0])
+    # generator.input_RollerBound(i, [0,  -1, 0])
+    # for S wave propagation
+    generator.input_RollerBound(i, [-1, 0, 0])
+    generator.input_RollerBound(i, [1, 0, 0])
     generator.generate_RockMass_Multi(dfn)
+
 
 for i in range(nx-1):
     generator.input_BondedBlocks([i, i+1])
 
+#################################################
+# Boundary conditions
 # be careful about the outer normal, should be outwards!
 generator.input_ViscousBound(0, [-1, 0, 0])
-generator.input_ViscousBound(nx-1, [1, 0, 0])
-
+# generator.input_ViscousBound(nx-1, [1, 0, 0])
+generator.input_FixFaceBound(nx-1, [1, 0, 0])
 generator.input_InputBound(0, [-1, 0, 0])  # 0=disp, 1=load
+# try input from the right
+# generator.input_InputBound(nx-1, [1, 0, 0])  # 0=disp, 1=load
+#################################################
 
 # dfn.export_DFNVtk("dfnCreated")
 # dfn.export_RegionVtk("modelRegion")

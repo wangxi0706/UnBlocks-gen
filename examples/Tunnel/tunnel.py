@@ -10,6 +10,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from time import perf_counter
+t1_start = perf_counter()
 
 from unblocks import *
 import plotTools
@@ -58,4 +60,6 @@ generator.export_BlocksVtk("blocksAfterExcavation")
 plotTools.showPlots()
 
 
-
+t1_stop = perf_counter()
+print("Elapsed time during the whole program in seconds:",
+                                        t1_stop-t1_start)
