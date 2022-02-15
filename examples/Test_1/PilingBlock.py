@@ -18,7 +18,7 @@ off_z = 0
 lx = 2
 ly = 2
 lz = 2
-nz = 100
+nz = 10
 
 # dfn = DFN()
 # dfn.set_RegionMaxCorner([lx*nx, ly, lz])
