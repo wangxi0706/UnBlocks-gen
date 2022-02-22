@@ -108,9 +108,8 @@ def genBlk(Blocks: Block, s):
 
     f.close()
 
+
 # generate .ply blocks for tetgen
-
-
 def genBlkTet(Blocks: Block, s):
     f = open(s, 'w')
     nTotalBlocks = len(Blocks)
