@@ -1,4 +1,4 @@
-/*    
+/*
     UnBlocks-Gen: 3D rock mass generator and analyser
     Copyright (C) 2020  Leandro Lima Rasmussen
 
@@ -69,6 +69,7 @@ void Block::generate_Geometry()
         intCountCheck++;
         vertices.clear();
         planesVerticesId.clear();
+        // for any plane, there is a list of vertx ids for its corresponding boundary polygon
         for (int i = 0; i != (int)planes.size(); ++i)
         {
             std::vector<int> verticesId;
@@ -76,11 +77,12 @@ void Block::generate_Geometry()
             // printf("Plance center: %f, %f\n", planes[i].center.begin(), planes[i].center.end());
         }
 
-        //Fill vertices vector
+        // Fill vertices vector
         if ((int)planes.size() < 4)
         {
             printf("plane size=%d\n", (int)planes.size());
         }
+
         ASSERT((int)planes.size() >= 4);
         for (int i = 0; i != (int)planes.size() - 2; ++i)
         {
@@ -91,7 +93,7 @@ void Block::generate_Geometry()
                     Vector3r intersectionPoint = Vector3r::Zero();
                     if (Functions::calculate_threePlanesIntersection(planes[i], planes[j], planes[k], intersectionPoint))
                     {
-                        if (Functions::check_PointIntersection(intersectionPoint, planes))//if inside the halfspaces defined by block planes
+                        if (Functions::check_PointIntersection(intersectionPoint, planes)) // if inside the halfspaces defined by block planes
                         {
                             bool verticeExist = false;
                             for (int l = 0; l != (int)vertices.size(); ++l)
@@ -159,7 +161,9 @@ void Block::generate_Geometry()
         }
         if (!allPlanesOk)
         {
-            planes.erase(std::remove_if(std::begin(planes), std::end(planes), [](Plane &_p) { return (std::isnan(_p.d)); }), std::end(planes));
+            planes.erase(std::remove_if(std::begin(planes), std::end(planes), [](Plane &_p)
+                                        { return (std::isnan(_p.d)); }),
+                         std::end(planes));
             runAnew = true;
         }
         else
@@ -169,29 +173,35 @@ void Block::generate_Geometry()
     }
 
     // added, calculate the center, set all plane vectors as outer normal
-    Vector3r center=Vector3r::Zero();
-    for(auto v : vertices){
-        center[0]+=v[0];center[1]+=v[1];center[2]+=v[2];
+    Vector3r center = Vector3r::Zero();
+    for (auto v : vertices)
+    {
+        center[0] += v[0];
+        center[1] += v[1];
+        center[2] += v[2];
     }
-    center[0]/=vertices.size();center[1]/=vertices.size();center[2]/=vertices.size();
+    center[0] /= vertices.size();
+    center[1] /= vertices.size();
+    center[2] /= vertices.size();
 
-    //Fill polygons vector
+    // Fill polygons vector
     for (int i = 0; i != (int)planes.size(); ++i)
     {
         // added, to make sure all plane vectors points the outer normal
-        if(vertices[planesVerticesId[i][0]].dot(planes[i].unitVector)-
-            center.dot(planes[i].unitVector)<0)
+        if (vertices[planesVerticesId[i][0]].dot(planes[i].unitVector) -
+                center.dot(planes[i].unitVector) <
+            0) //(v-a)*n>=0 means outer normal vector
         {
-            planes[i].unitVector[0]*=-1;
-            planes[i].unitVector[1]*=-1;
-            planes[i].unitVector[2]*=-1;
+            planes[i].unitVector[0] *= -1;
+            planes[i].unitVector[1] *= -1;
+            planes[i].unitVector[2] *= -1;
         }
         ASSERT((int)planesVerticesId[i].size() >= 3);
         Polygon newPolygon(planes[i].unitVector, planesVerticesId[i], vertices);
         polygons.push_back(newPolygon);
     }
 
-    //Fill edges vector
+    // Fill edges vector
     for (int i = 0; i != (int)polygons.size(); ++i)
     {
         for (int j = 0; j != (int)polygons[i].verticesId.size(); ++j)
@@ -220,13 +230,13 @@ void Block::generate_Geometry()
         }
     }
 
-    //Check Euler relation for polyhedron
+    // Check Euler relation for polyhedron
     ASSERT((int)vertices.size() - (int)edges.size() + (int)polygons.size() == 2);
 
-    //Calculate Volume
+    // Calculate Volume
     calculate_Volume();
 
-    //Calculate alpha and beta for shape characterization
+    // Calculate alpha and beta for shape characterization
     calculate_AlphaBeta();
 
     std::cout << "Generated Block " << id << " Geometry" << std::endl;
@@ -262,7 +272,7 @@ void Block::calculate_AlphaBeta()
     }
     averageChord = averageChord / (double)chordsLength.size();
 
-    //calculate median chord length
+    // calculate median chord length
     double medianChord = 0;
     std::sort(chordsLength.begin(), chordsLength.end());
     if ((int)chordsLength.size() % 2 != 0)
@@ -270,10 +280,12 @@ void Block::calculate_AlphaBeta()
     if ((int)chordsLength.size() % 2 == 0)
         medianChord = 0.5 * ((chordsLength[(int)chordsLength.size() / 2 - 1]) + (chordsLength[(int)chordsLength.size() / 2]));
 
-    //erase chords with lengths smaller than the median value
-    chords.erase(std::remove_if(std::begin(chords), std::end(chords), [&](Vector3r &_c) { return (_c.norm() < medianChord); }), std::end(chords));
+    // erase chords with lengths smaller than the median value
+    chords.erase(std::remove_if(std::begin(chords), std::end(chords), [&](Vector3r &_c)
+                                { return (_c.norm() < medianChord); }),
+                 std::end(chords));
 
-    //calculate Beta
+    // calculate Beta
     double sumA = 0;
     double sumB = 0;
     for (int i = 0; i != (int)chords.size() - 1; ++i)
@@ -286,7 +298,7 @@ void Block::calculate_AlphaBeta()
     }
     beta = 10 * std::pow(sumA / sumB, 2);
 
-    //calculate Alpha
+    // calculate Alpha
     double surfaceArea = 0;
     for (auto &p : polygons)
         surfaceArea += p.area;
@@ -526,7 +538,7 @@ void Block::calculate_InscribedSphere()
     model.replaceMatrix(clpMatrix, true);
 
     model.primal();
-    ASSERT(model.status() == 0); //optimization
+    ASSERT(model.status() == 0); // optimization
     double *columnPrimal = model.primalColumnSolution();
 
     ASSERT(columnPrimal[3] < 0);

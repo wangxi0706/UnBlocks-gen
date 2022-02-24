@@ -49,27 +49,16 @@ public:
     void export_ExcavationElementsVtk(std::string _fileName);
     void export_BlocksVtk(std::string _fileName);
 
-    // Added, extract DDA blocks
+    /////////////////////////////////////////////////////////
+    /// DDA: Added, extract DDA blocks
     typedef boost::python::list PyList;
 #define TOLA 0.5  // tolerance for zero angle
 #define TOLD 1e-6 // tolerance for zero dist
     void export_BlocksDDA(std::string _fileName);
     void export_BlocksDDAOpt(std::string _filename);
+
 // Added, bond constraints
 #define NBONDP 4 //# of bonded point
-    // struct Bond
-    // {
-    //     int nBlkId1;
-    //     int nBlkId2;
-    //     int nFId1;
-    //     int nFId2;
-    //     Vector3 P1[NBONDP]; //bonded points, should be equal to each other initially
-    //     Vector3 P2[NBONDP];
-    //     int nP1[NBONDP],nP2[NBONDP];
-    //     Vector3 nDir; //average normal of two bonded faces, update each step
-    //     double dArea; //area of the bonded face, do not need update
-    //     int nMech;   //id of the mechanical paras
-    // };
     // return false if do not find opposite faces
     // bool get_BondInfo(Block& b1, Block& b2,Bond& bond);
     vecInt vBondIndex;                              // to store bond indexes
@@ -96,6 +85,7 @@ public:
     vecInt vFixFaceIndex;
     vecP vFixFaceNormal;
     void input_FixFaceBound(int _fixFaceBlkId, PyList _fixFaceNor);
+    /////////////////////////////////////////////////////////
 
     boost::python::list get_Volumes(bool _considerBorderBlocks);
     boost::python::list get_AlphaValues(bool _considerBorderBlocks);
@@ -103,6 +93,8 @@ public:
 
     void generate_RockMass(DFN &_dfn);
 
+    /////////////////////////////////////////////////////////
+    /// DDA: Added, extract DDA blocks
     // add generate rock mass seperately
     void generate_RockMass_Multi(DFN &_dfn);
 
@@ -116,13 +108,16 @@ public:
         return box.minCor[0] < p[0] + offset[0] && box.minCor[1] < p[1] + offset[1] && box.minCor[2] < p[2] + offset[2] &&
                box.maxCor[0] > p[0] + offset[0] && box.maxCor[1] > p[1] + offset[1] && box.maxCor[2] > p[2] + offset[2];
     }
+    /////////////////////////////////////////////////////////
 
     void excavate_RockMass();
 
     std::vector<std::shared_ptr<Block>> blocks;
 
-    // added
+    /////////////////////////////////////////////////////////
+    /// DDA: added
     std::vector<int> blockNs;
+    /////////////////////////////////////////////////////////
 
 private:
     double calculate_BoundingSphereRadius(const Block &_block);

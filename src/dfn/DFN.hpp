@@ -1,4 +1,4 @@
-/*    
+/*
     UnBlocks-Gen: 3D rock mass generator and analyser
     Copyright (C) 2020  Leandro Lima Rasmussen
 
@@ -47,7 +47,6 @@ public:
 
     void set_RandomSeed(int _seed);
     void set_RegionMaxCorner(PyList _point);
-
     // added
     void set_RegionMaxMinCorner(PyList _point1, PyList _point2);
     void set_FirstRecBlock(PyList _MinPoint, PyList _MaxPoint);
@@ -77,4 +76,4 @@ private:
     double regionVolume = 1000000;
 };
 
-#endif //DFN_H
+#endif // DFN_H

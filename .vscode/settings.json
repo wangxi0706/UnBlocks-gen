@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "\"files.associations\"": "{\"*.cu\": \"cpp\"}",
+        "*.cu": "cuda",
         "ostream": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
@@ -59,7 +60,9 @@
         "cfenv": "cpp",
         "cinttypes": "cpp",
         "typeindex": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "variant": "cpp",
+        "bit": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

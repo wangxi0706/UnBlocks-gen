@@ -1,4 +1,4 @@
-/*    
+/*
     UnBlocks-Gen: 3D rock mass generator and analyser
     Copyright (C) 2020  Leandro Lima Rasmussen
 
@@ -25,14 +25,15 @@ Polygon::Polygon(Vector3r _unitVector, std::vector<int> &_verticesId, std::vecto
     ASSERT((int)verticesId.size() >= 3);
     ASSERT(checkEquality(unitVector.norm(), 1));
 
-    //calculate polygon center from average of vertices coordinates
+    // calculate polygon center from average of vertices coordinates
     Vector3r center = Vector3r::Zero();
     for (auto &id : verticesId)
     {
-        center += _vertices[id] / (double)verticesId.size();
+        center += _vertices[id];
     }
+    center /= (double)verticesId.size();
 
-    //In this algorithm, the points with bigger angles are added first in a lowering angle sequence
+    // In this algorithm, the points with bigger angles are added first in a lowering angle sequence
     std::vector<double> angles;
     for (int i = 1; i != (int)verticesId.size(); i++)
     {
@@ -71,7 +72,7 @@ Polygon::Polygon(Vector3r _unitVector, std::vector<int> &_verticesId, std::vecto
     ASSERT((int)verticesId.size() >= 3);
     Vector3r unitVectorX = (center.cross(_unitVector)) / (center.cross(_unitVector)).norm();
     Vector3r unitVectorY = (_unitVector.cross(unitVectorX)) / (_unitVector.cross(unitVectorX)).norm();
-    ASSERT(checkEquality(unitVectorX.norm(), 1)); //if norm is zero?
+    ASSERT(checkEquality(unitVectorX.norm(), 1)); // if norm is zero?
     ASSERT(checkEquality(unitVectorY.norm(), 1)); //
     Matrix3r Transf = Matrix3r::Zero();
     Transf(0, 0) = unitVectorX[0];

@@ -1,1 +1,7 @@
-COMMIT: output .poly file for tetgen 2022-02-15
+# 2022-02-15
+COMMIT: output .poly file for tetgen, 2022-02-15
+
+# 2022-02-24
+Cut blocks lead to negative volume in DDA; check the code that arrange vertices of the polygon; 
+
+COMMIT: Correct the counter-clock wise order of boundary polygons, 2022-02-24

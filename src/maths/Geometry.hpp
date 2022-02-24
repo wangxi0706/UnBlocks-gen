@@ -1,4 +1,4 @@
-/*    
+/*
     UnBlocks-Gen: 3D rock mass generator and analyser
     Copyright (C) 2020  Leandro Lima Rasmussen
 
@@ -26,7 +26,7 @@
 #include "Assert.hpp"
 #include "TolControl.hpp"
 
-//Added box region
+// Added box region
 struct Box
 {
     Vector3r minCor;
@@ -44,11 +44,12 @@ public:
     Plane(Vector3r _unitVector, double _d) : unitVector(_unitVector),
                                              d(_d)
     {
-        center = _d * _unitVector;
+        center = _d * _unitVector; //?? but the center may not on the unit vector??
     };
 
     Vector3r unitVector = Vector3r::Zero();
     Vector3r center = Vector3r::Zero();
+    // can facilitate the point to plane distance, (a-c)*n=a*n-c*n=a*n-d
     double d;
 };
 
@@ -181,4 +182,4 @@ public:
     Vector3r pointB = Vector3r::Zero();
 };
 
-#endif //GEOMETRY_H
+#endif // GEOMETRY_H

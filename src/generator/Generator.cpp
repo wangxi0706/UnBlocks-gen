@@ -158,12 +158,12 @@ void Generator::generate_RockMass(DFN &_dfn)
     blockNs.push_back((int)blocks.size());
 
     // First block generation
-    Plane planeX0({-1, 0, 0}, _dfn.regionMinCorner[0]);
-    Plane planeX1({1, 0, 0}, _dfn.regionMaxCorner[0]);
-    Plane planeY0({0, -1, 0}, _dfn.regionMinCorner[1]);
-    Plane planeY1({0, 1, 0}, _dfn.regionMaxCorner[1]);
-    Plane planeZ0({0, 0, -1}, _dfn.regionMinCorner[2]);
-    Plane planeZ1({0, 0, 1}, _dfn.regionMaxCorner[2]);
+    Plane planeX0({-1, 0, 0}, _dfn.regionMinCorner[0]); // x=xmin的面，外法向朝x负方向
+    Plane planeX1({1, 0, 0}, _dfn.regionMaxCorner[0]);  // x=xmax的面，外法向朝x正方向
+    Plane planeY0({0, -1, 0}, _dfn.regionMinCorner[1]); // y=ymin的面，外法向朝y负方向
+    Plane planeY1({0, 1, 0}, _dfn.regionMaxCorner[1]);  // y=ymax的面，外法向朝y正方向
+    Plane planeZ0({0, 0, -1}, _dfn.regionMinCorner[2]); // z=zmin的面，外法向朝z负方向
+    Plane planeZ1({0, 0, 1}, _dfn.regionMaxCorner[2]);  // z=zmax的面，外法向朝z正方向
     std::vector<Plane> firstBlockPlanes;
     firstBlockPlanes.push_back(planeX0);
     firstBlockPlanes.push_back(planeX1);
@@ -182,6 +182,7 @@ void Generator::generate_RockMass(DFN &_dfn)
             int nBlocks = (int)blocks.size();
             for (int i = blockNs.back(); i != nBlocks; ++i)
             {
+                // if bounding sphere intersects
                 if ((blocks[i]->boundingSphereCenter - frac->center).norm() < blocks[i]->boundingSphereRadius + frac->boundingSphereRadius)
                 {
                     if (check_BlockPlaneIntersection<Fracture>(*blocks[i], *frac))
@@ -192,8 +193,8 @@ void Generator::generate_RockMass(DFN &_dfn)
                         blocks[i]->calculate_InscribedSphere();
 
                         std::vector<Plane> planesForNewBlock = blocks[i]->planes;
-                        planesForNewBlock.back().unitVector *= -1;
-                        planesForNewBlock.back().d *= -1;
+                        planesForNewBlock.back().unitVector *= -1; // invert its normal direction
+                        planesForNewBlock.back().d *= -1;          // why -=1?
                         std::shared_ptr<Block> newblock = std::make_shared<Block>(planesForNewBlock, (int)blocks.size());
 
                         if (blocks[i]->boundingSphereRadius / blocks[i]->inscribedSphereRadius > maxAspectRatio || blocks[i]->inscribedSphereRadius < minInscribedSphereRadius)
@@ -715,6 +716,9 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
         for (auto &p : b->polygons)
         {
             nTotalPoints += (int)p.verticesId.size();
+            // check if the vertices are arranged with counter-clock order
+            if (p.unitVector.dot((b->vertices[p.verticesId[1]] - b->vertices[p.verticesId[0]]).cross(b->vertices[p.verticesId[2]] - b->vertices[p.verticesId[1]])) < 0)
+                printf("Block %d, face , not outer normal\n", b->id);
         }
     }
 
@@ -774,10 +778,18 @@ void Generator::export_BlocksDDAOpt(std::string _fileName)
             auxId_f += (int)p.verticesId.size();
 
             // out << (int)p.verticesId.size() << " ";
+            // if (p.unitVector.dot((b->vertices[p.verticesId[1]] - b->vertices[p.verticesId[0]]).cross(b->vertices[p.verticesId[2]] - b->vertices[p.verticesId[1]])) > 0)
+            // {
             for (auto &vId : p.verticesId)
             {
                 out << vId << " "; // local id, global id=local id + start id
             }
+            // }
+            // else // if not counter-clock wise, revert it
+            // {
+            //     for (int i = p.verticesId.size() - 1; i >= 0; i--)
+            //         out << p.verticesId[i] << " ";
+            // }
         }
         // auxId += b->vertices.size();
         out << std::endl;
