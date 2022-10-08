@@ -42,10 +42,22 @@ inline Vector3r pyListToVec3(boost::python::list _point){
     return {boost::python::extract<double>(_point[0]),boost::python::extract<double>(_point[1]), boost::python::extract<double>(_point[2])};
 }
 
-// added, to extract pylist to vector
-typedef std::vector<double> vecDouble;
-typedef std::vector<int> vecInt;
+// added, to extract pylist to point vectors
 typedef std::vector<Vector3r> vecP;
+inline vecP pyListToVecP(boost::python::list _point){
+    ASSERT(boost::python::len(_point)%3 == 0);
+    vecP Ps;
+    int nP=len(_point)/3;
+    Ps.reserve(nP);
+    for (size_t i = 0; i < nP; i++)
+        Ps.push_back({boost::python::extract<double>(_point[3*i+0]),
+                            boost::python::extract<double>(_point[3*i+1]), 
+                            boost::python::extract<double>(_point[3*i+2])});
+        
+    return Ps;
+}
+
+typedef std::vector<int> vecInt;
 inline vecInt pyListToVecInt(boost::python::list pyListIndex){
     int length=boost::python::len(pyListIndex);
     vecInt vInt;

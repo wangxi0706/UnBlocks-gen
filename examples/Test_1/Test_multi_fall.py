@@ -14,8 +14,8 @@
 
 from unblocks import *
 nw = 1
-nh = 50
-nv = 50
+nh = 10
+nv = 10
 w = 3
 h = 3
 v = 1.5
@@ -29,7 +29,7 @@ hh1 = hh/2+20
 generator = Generator()
 
 # two bases
-nnh = 60.3
+nnh = 2.3
 dfn = DFN()
 min = [-1, -1, -v]
 max = [ww+1, h*nnh, 0]

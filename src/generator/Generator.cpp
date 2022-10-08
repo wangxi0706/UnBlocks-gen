@@ -46,6 +46,7 @@ void Generator_Wrapper()
 
         // added
         .def("generate_RockMass_Multi", &Generator::generate_RockMass_Multi)
+        .def("generate_Polyhedra", &Generator::generate_Polyhedra)
         // added
         .def("add_Fixed_Region", &Generator::add_Fixed_Region)
         // added
@@ -311,6 +312,82 @@ void Generator::generate_RockMass_Multi(DFN &_dfn)
     for (int i = startIndex; i != (int)blocks.size(); ++i)
     {
         blocks[i]->generate_Geometry();
+    }
+}
+
+void Generator::generate_Polyhedra(DNF &_dfn)
+{
+    regionMaxCorner = _dfn.regionMaxCorner;
+    regionMinCorner = _dfn.regionMinCorner;
+    vecP Ps = _dfn.Ps;
+    vecP vecN = _dfn.vecN;
+    ASSERT(Ps.size() == vecN.size());
+
+    // added, to enable multi usage of generate_RockMass, but halfway, not tested
+    blockNs.push_back((int)blocks.size());
+
+    std::vector<Plane> firstBlockPlanes;
+    firstBlockPlanes.reserve(vecN.size());
+    
+
+    std::shared_ptr<Block> firstBlock = std::make_shared<Block>(firstBlockPlanes, (int)blocks.size());
+    blocks.push_back(firstBlock);
+
+    for (auto &fracset : _dfn.fractureSets)
+    {
+        for (auto &frac : fracset->fractures)
+        {
+            std::cout << "Fracture id " << frac->id << " from Fracture Set " << fracset->id << " is being analysed!" << std::endl;
+            int nBlocks = (int)blocks.size();
+            for (int i = blockNs.back(); i != nBlocks; ++i)
+            {
+                // if bounding sphere intersects
+                if ((blocks[i]->boundingSphereCenter - frac->center).norm() < blocks[i]->boundingSphereRadius + frac->boundingSphereRadius)
+                {
+                    if (check_BlockPlaneIntersection<Fracture>(*blocks[i], *frac))
+                    {
+                        Plane cuttingPlane(frac->center, frac->unitVector);
+                        blocks[i]->planes.push_back(cuttingPlane);
+                        blocks[i]->calculate_BoundingSphere();
+                        blocks[i]->calculate_InscribedSphere();
+
+                        std::vector<Plane> planesForNewBlock = blocks[i]->planes;
+                        planesForNewBlock.back().unitVector *= -1; // invert its normal direction
+                        planesForNewBlock.back().d *= -1;          // why -=1?
+                        std::shared_ptr<Block> newblock = std::make_shared<Block>(planesForNewBlock, (int)blocks.size());
+
+                        if (blocks[i]->boundingSphereRadius / blocks[i]->inscribedSphereRadius > maxAspectRatio || blocks[i]->inscribedSphereRadius < minInscribedSphereRadius)
+                        {
+                            blocks[i]->planes.pop_back();
+                            blocks[i]->calculate_BoundingSphere();
+                            blocks[i]->calculate_InscribedSphere();
+                        }
+                        else
+                        {
+                            if (newblock->boundingSphereRadius / newblock->inscribedSphereRadius > maxAspectRatio || newblock->inscribedSphereRadius < minInscribedSphereRadius)
+                            {
+                                blocks[i]->planes.pop_back();
+                                blocks[i]->calculate_BoundingSphere();
+                                blocks[i]->calculate_InscribedSphere();
+                            }
+                            else
+                            {
+                                blocks.push_back(newblock);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for (int i = blockNs.back(); i != (int)blocks.size(); ++i)
+    {
+        blocks[i]->generate_Geometry();
+        blocks[i]->offset = _dfn.offset;
+        std::cout << blocks[i]->offset[0] << " "
+                  << blocks[i]->offset[1] << " "
+                  << blocks[i]->offset[2] << std::endl;
     }
 }
 

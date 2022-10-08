@@ -47,9 +47,13 @@ public:
 
     void set_RandomSeed(int _seed);
     void set_RegionMaxCorner(PyList _point);
+
     // added
     void set_RegionMaxMinCorner(PyList _point1, PyList _point2);
     void set_FirstRecBlock(PyList _MinPoint, PyList _MaxPoint);
+    // added, use polyhedral region, TODO: calculate region volume
+    void set_Polyhedra(PyList _points, PyList _normals);
+    void set_Modelregion(PyList _points, PyList _tIndexes);
 
     void set_NumberOfBorderPoints(int _number) { nFracBorderPoints = _number; };
 
@@ -63,6 +67,7 @@ public:
     std::vector<std::shared_ptr<VolumeMapping>> volumesMapping;
 
 private:
+//to trim fracture set in trim_FractureBorders, and export model region
     std::vector<Triangle> modelRegion;
     int randomSeed = 0;
     int nFracBorderPoints = 26;
@@ -72,6 +77,9 @@ private:
 
     Vector3r firstBlkMin = {0, 0, 0};
     Vector3r firstBlkMax = {100, 100, 100};
+
+    vecP Ps;//vector of points on planes
+    vecP vecN;//normal of points of planes
 
     double regionVolume = 1000000;
 };

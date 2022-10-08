@@ -108,6 +108,7 @@ def genBlk(Blocks: Block, s):
 
     f.close()
 
+
 # generate .ply blocks for tetgen
 def genBlkTet(Blocks: Block, s):
     f = open(s, 'w')
@@ -119,12 +120,12 @@ def genBlkTet(Blocks: Block, s):
         nTotalFaces += len(b.faces)
 
     # write vertexes
-    f.write(str(nTotalVerts)+' '+'3'+' '+'0'+' '+'0'+' '+'\n')
+    f.write(str(nTotalVerts)+' '+'3'+' '+'0'+' '+'1'+' '+'\n')
     iB = 1
     for b in Blocks:
         for v in b.vertices:
             f.write(str(iB)+' ' + str(v[0])+' ' +
-                    str(v[1])+' '+str(v[2])+'\n')
+                    str(v[1])+' '+str(v[2])+' 1 '+'\n')
             iB += 1
 
     # write facets
@@ -133,7 +134,7 @@ def genBlkTet(Blocks: Block, s):
     f.write(str(nTotalFaces)+' '+'1'+'\n')
     for b in Blocks:
         for p in b.faces:
-            f.write('1 '+'\n')
+            f.write('1 '+'0 '+'1 # '+str(nFacet)+'\n')
             f.write(str(len(p))+' ')
             for vId in p:
                 f.write(str(vId+blkStart+1)+' ')

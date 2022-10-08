@@ -97,6 +97,7 @@ public:
     /// DDA: Added, extract DDA blocks
     // add generate rock mass seperately
     void generate_RockMass_Multi(DFN &_dfn);
+    void generate_Polyhedra(DNF &_dfn);
 
     // add fixed box region
     std::vector<Box> fixRegion;

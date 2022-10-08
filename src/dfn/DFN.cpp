@@ -50,6 +50,8 @@ void DFN_Wrapper()
 		// added
 		.def("set_RegionMaxMinCorner", &DFN::set_RegionMaxMinCorner)
 		.def("set_FirstRecBlock", &DFN::set_FirstRecBlock)
+		.def("set_Polyhedra",&DFN::set_Polyhedra)
+		.def("set_Modelregion",&DFN::set_Modelregion)
 
 		.def("set_RandomSeed", &DFN::set_RandomSeed)
 		.def("set_NumberOfBorderPoints", &DFN::set_NumberOfBorderPoints)
@@ -81,10 +83,11 @@ void DFN::set_RegionMaxMinCorner(PyList _point1, PyList _point2)
 	Vector3r point1 = pyListToVec3(_point1);
 	regionMaxCorner = point1;
 	Vector3r point2 = pyListToVec3(_point2);
-	offset = point2;
-	regionMaxCorner[0] -= offset[0];
-	regionMaxCorner[1] -= offset[1];
-	regionMaxCorner[2] -= offset[2];
+	regionMinCorner = point2;
+	// offset = point2;
+	// regionMaxCorner[0] -= offset[0];
+	// regionMaxCorner[1] -= offset[1];
+	// regionMaxCorner[2] -= offset[2];
 	regionVolume = (regionMaxCorner[0] - regionMinCorner[0]) * (regionMaxCorner[1] - regionMinCorner[1]) * (regionMaxCorner[2] - regionMinCorner[2]);
 
 	Triangle triangle1({regionMinCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMinCorner[1], regionMinCorner[2]}, {regionMaxCorner[0], regionMaxCorner[1], regionMinCorner[2]});
@@ -114,6 +117,27 @@ void DFN::set_RegionMaxMinCorner(PyList _point1, PyList _point2)
 	modelRegion.push_back(triangle11);
 	modelRegion.push_back(triangle12);
 };
+
+void DFN::set_Polyhedra(PyList _points, PyList _normals)
+{
+	Ps = pyListToVecP(_points);
+	vecN = pyListToVecP(_normals);
+	regionVolume;// TODO, compute the real volume
+}
+
+void DFN::set_Modelregion(PyList _points, PyList _tIndexes)
+{
+	vecP points = pyListToVecP(_points);
+	vecInt tIndexes = pyListToVecInt(_tIndexes);
+	ASSERT(tIndexes.size()%3 == 0);// should exist multiple triangles
+
+	modelRegion.clear();
+	for (size_t i = 0; i < tIndexes.size()/3; i++)
+	{
+		Triangle triangle(points[tIndexes[i*3+0]], points[tIndexes[i*3+1]], points[tIndexes[i*3+2]]);
+		modelRegion.push_back(triangle);
+	}
+}
 
 void DFN::set_RegionMaxCorner(PyList _point1)
 {
