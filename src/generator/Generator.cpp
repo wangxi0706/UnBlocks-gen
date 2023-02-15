@@ -315,7 +315,7 @@ void Generator::generate_RockMass_Multi(DFN &_dfn)
     }
 }
 
-void Generator::generate_Polyhedra(DNF &_dfn)
+void Generator::generate_Polyhedra(DFN &_dfn)
 {
     regionMaxCorner = _dfn.regionMaxCorner;
     regionMinCorner = _dfn.regionMinCorner;
